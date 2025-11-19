@@ -69,9 +69,6 @@ class CPU extends Module {
   val csr_regs = Module(new CSR)
   val clint    = Module(new CLINT)
 
-  // VGA peripheral (MMIO base: 0x30000000)
-  val vga = Module(new peripheral.VGA)
-
   io.regs_debug_read_data            := regs.io.debug_read_data
   io.csr_regs_debug_read_data        := csr_regs.io.debug_reg_read_data
   regs.io.debug_read_address         := io.regs_debug_read_address
@@ -124,13 +121,7 @@ class CPU extends Module {
   io.memory_bundle.write_enable := mem.io.memory_bundle.write_enable
   io.memory_bundle.write_data   := mem.io.memory_bundle.write_data
   io.memory_bundle.write_strobe := mem.io.memory_bundle.write_strobe
-
-  // Mux read data: VGA (deviceSelect=1, address 0x20000000-0x3FFFFFFF) or external (Timer/UART/Memory)
-  mem.io.memory_bundle.read_data := Mux(
-    io.deviceSelect === 1.U,
-    vga.io.bundle.read_data,
-    io.memory_bundle.read_data
-  )
+  mem.io.memory_bundle.read_data := io.memory_bundle.read_data
 
   wb.io.instruction_address := inst_fetch.io.instruction_address
   wb.io.alu_result          := ex.io.mem_alu_result
@@ -143,27 +134,4 @@ class CPU extends Module {
   clint.io.interrupt_flag      := io.interrupt_flag
   clint.io.jump_flag           := ex.io.if_jump_flag
   clint.io.jump_address        := ex.io.if_jump_address
-
-  // VGA peripheral connections
-  vga.io.pixClock    := io.vga_pixclk
-  io.vga_hsync       := vga.io.hsync
-  io.vga_vsync       := vga.io.vsync
-  io.vga_rrggbb      := vga.io.rrggbb
-  io.vga_activevideo := vga.io.activevideo
-  io.vga_x_pos       := vga.io.x_pos
-  io.vga_y_pos       := vga.io.y_pos
-
-  // VGA MMIO: Route memory accesses to VGA (base address 0x30000000, deviceSelect = 3)
-  // VGA peripheral expects byte offset (0x00-0x5F), not full address
-  vga.io.bundle.address      := mem.io.memory_bundle.address(31, 0) // Pass full address, VGA will mask
-  vga.io.bundle.write_data   := mem.io.memory_bundle.write_data
-  vga.io.bundle.write_strobe := mem.io.memory_bundle.write_strobe
-
-  // Conditionally route write_enable when accessing VGA peripheral (deviceSelect=1)
-  vga.io.bundle.write_enable := Mux(
-    io.deviceSelect === 1.U,
-    mem.io.memory_bundle.write_enable,
-    false.B
-  )
-
 }

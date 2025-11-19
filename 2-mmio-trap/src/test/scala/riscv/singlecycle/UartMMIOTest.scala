@@ -48,7 +48,6 @@ class UartHarness(exeFilename: String) extends Module {
   withClock(CPU_tick.asClock) {
     val cpu = Module(new CPU)
     cpu.io.interrupt_flag := io.interrupt_flag
-    cpu.io.vga_pixclk     := clock // VGA pixel clock (tied to main clock for testing)
 
     cpu.io.instruction_valid   := rom_loader.io.load_finished
     mem.io.instruction_address := cpu.io.instruction_address
