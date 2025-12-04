@@ -87,20 +87,30 @@ class Execute extends Module {
   // - BEQ/BNE: Equality/inequality comparison (sign-agnostic)
   // - BLT/BGE: Signed comparison (requires type conversion)
   // - BLTU/BGEU: Unsigned comparison (direct comparison)
+  val reg1_data = io.reg1_data
+  val reg2_data = io.reg2_data
+
+  val beq = reg1_data === reg2_data
+  val bne = reg1_data =/= reg2_data
+  val blt = reg1_data.asSInt < reg2_data.asSInt
+  val bge = reg1_data.asSInt >= reg2_data.asSInt
+  val bltu = reg1_data < reg2_data
+  val bgeu = reg1_data >= reg2_data
+
   val branchCondition = MuxLookup(funct3, false.B)(
     Seq(
       // TODO: Implement six branch conditions
       // Hint: Compare two register data values based on branch type
-      InstructionsTypeB.beq  -> ?,
-      InstructionsTypeB.bne  -> ?,
+      InstructionsTypeB.beq  -> beq,
+      InstructionsTypeB.bne  -> bne,
 
       // Signed comparison (need conversion to signed type)
-      InstructionsTypeB.blt  -> ?,
-      InstructionsTypeB.bge  -> ?,
+      InstructionsTypeB.blt  -> blt,
+      InstructionsTypeB.bge  -> bge,
 
       // Unsigned comparison
-      InstructionsTypeB.bltu -> ?,
-      InstructionsTypeB.bgeu -> ?
+      InstructionsTypeB.bltu -> bltu,
+      InstructionsTypeB.bgeu -> bgeu
     )
   )
   val isBranch = opcode === InstructionTypes.Branch
@@ -118,18 +128,18 @@ class Execute extends Module {
   // - JALR: (rs1 + immediate) & ~1 (register base, clear LSB for alignment)
   //
   // TODO: Complete the following address calculations
-  val branchTarget = ?
+  val branchTarget = io.instruction_address + io.immediate
 
   val jalTarget    = branchTarget  // JAL and Branch use same calculation method
 
   // JALR address calculation:
   //   1. Add register value and immediate
   //   2. Clear LSB (2-byte alignment)
-  val jalrSum      = ?
+  val jalrSum      = (io.reg1_data + io.immediate)
 
   // TODO: Clear LSB using bit concatenation
   // Hint: Extract upper bits and append zero
-  val jalrTarget   = ?
+  val jalrTarget   = jalrSum & ~(1.U)
 
   val branchTaken = isBranch && branchCondition
   io.if_jump_flag := branchTaken || isJal || isJalr
