@@ -1,4 +1,4 @@
-CROSS_COMPILE ?= $(HOME)/riscv/toolchain/bin/riscv-none-elf-
+CROSS_COMPILE ?= $(HOME)/riscv-none-elf-gcc/bin/riscv-none-elf-
 
 ASFLAGS = -march=rv32i_zicsr -mabi=ilp32
 CFLAGS = -O0 -Wall -march=rv32i_zicsr -mabi=ilp32
@@ -27,12 +27,15 @@ BINS = \
 	sb.asmbin \
 	irqtrap.asmbin \
 	uart.asmbin
-
+ELF = \
+	irqtrap.elf
 # Clear the .DEFAULT_GOAL special variable, so that the following turns
 # to the first target after .DEFAULT_GOAL is not set.
 .DEFAULT_GOAL :=
 
 all: $(BINS)
+
+elf: $(ELF)
 
 # Nyancat has minimal init (no trap handler) for correct memory layout
 nyancat.asmbin: nyancat.c nyancat-data.h init_minimal.o

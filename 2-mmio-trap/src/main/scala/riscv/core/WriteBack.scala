@@ -52,11 +52,13 @@ class WriteBack extends Module {
   //
   // TODO: Complete MuxLookup to multiplex writeback sources with CSR support
   // Hint: Specify default value and cases for each source type, including CSR
-  io.regs_write_data := MuxLookup(io.regs_write_source, ?)(
+  val CurrentinstructionAddress = io.instruction_address
+  val NextInstructionAddress = CurrentinstructionAddress + 4.U
+  io.regs_write_data := MuxLookup(io.regs_write_source, io.alu_result)(
     Seq(
-      RegWriteSource.Memory                 -> ?,
-      RegWriteSource.CSR                    -> ?,
-      RegWriteSource.NextInstructionAddress -> ?
+      RegWriteSource.Memory                 -> io.memory_read_data,
+      RegWriteSource.CSR                    -> io.csr_read_data,
+      RegWriteSource.NextInstructionAddress -> NextInstructionAddress
     )
   )
 }
