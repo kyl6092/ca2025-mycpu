@@ -139,7 +139,7 @@ class Execute extends Module {
 
   // TODO: Clear LSB using bit concatenation
   // Hint: Extract upper bits and append zero
-  val jalrTarget   = jalrSum & ~(1.U)
+  val jalrTarget   = jalrSum & ~(1.U(32.W))
 
   val branchTaken = isBranch && branchCondition
   io.if_jump_flag := branchTaken || isJal || isJalr

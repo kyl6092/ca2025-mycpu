@@ -1,4 +1,4 @@
-CROSS_COMPILE ?= $(HOME)/riscv/toolchain/bin/riscv-none-elf-
+CROSS_COMPILE ?= $(HOME)/riscv-none-elf-gcc/bin/riscv-none-elf-
 
 ASFLAGS = -march=rv32i -mabi=ilp32
 CFLAGS = -O0 -Wall -march=rv32i -mabi=ilp32
@@ -25,12 +25,15 @@ BINS = \
 	fibonacci.asmbin \
 	quicksort.asmbin \
 	sb.asmbin
-
+ELF = \
+	fibonacci.elf
 # Clear the .DEFAULT_GOAL special variable, so that the following turns
 # to the first target after .DEFAULT_GOAL is not set.
 .DEFAULT_GOAL :=
 
 all: $(BINS)
+
+elf: $(ELF)
 
 update: $(BINS)
 	cp -f $(BINS) ../src/main/resources

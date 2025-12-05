@@ -12,11 +12,14 @@ verilator:
 	cd .. && PATH=$$HOME/.local/bin:$$PATH sbt "project singleCycle" "runMain board.verilator.VerilogGenerator"
 	cd verilog/verilator && verilator --trace --exe --cc sim.cpp Top.v && make -C obj_dir -f VTop.mk
 
+
+#cd verilog/verilator/obj_dir && ./VTop -vcd ../../../$(SIM_VCD) -time $(SIM_TIME) $(subst src/main/resources/,../../../src/main/resources/,$(SIM_ARGS)); \
+
 sim: verilator
 	@if [ "$(WRITE_VCD)" = "0" ]; then \
 		cd verilog/verilator/obj_dir && ./VTop -time $(SIM_TIME) $(subst src/main/resources/,../../../src/main/resources/,$(SIM_ARGS)); \
 	else \
-		cd verilog/verilator/obj_dir && ./VTop -vcd ../../../$(SIM_VCD) -time $(SIM_TIME) $(subst src/main/resources/,../../../src/main/resources/,$(SIM_ARGS)); \
+		cd verilog/verilator/obj_dir && ./VTop -vcd ../../../$(SIM_VCD) -time $(SIM_TIME) -instruction ../../../src/main/resources/fibonacci.asmbin; \
 	fi
 
 indent:
