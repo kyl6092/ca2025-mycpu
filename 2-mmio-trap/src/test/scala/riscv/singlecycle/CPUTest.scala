@@ -53,7 +53,6 @@ class TestTopModule(exeFilename: String) extends Module {
 
     cpu.io.instruction_valid := rom_loader.io.load_finished
     cpu.io.interrupt_flag    := io.interrupt_flag
-    cpu.io.vga_pixclk        := clock // VGA pixel clock (tied to main clock for testing)
 
     val cpuMemAddress     = cpu.io.memory_bundle.address
     val cpuMemWriteData   = cpu.io.memory_bundle.write_data

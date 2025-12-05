@@ -5,6 +5,7 @@
 package riscv
 
 import chisel3._
+import chisel3.util.Cat
 import peripheral.InstructionROM
 import peripheral.Memory
 import peripheral.ROMLoader
@@ -45,12 +46,47 @@ class TestTopModule(exeFilename: String, implementation: Int) extends Module {
     cpu.io.instruction            := mem.io.instruction
     cpu.io.interrupt_flag         := io.interrupt_flag
 
+    val cpuMemAddress     = cpu.io.memory_bundle.address
+    val cpuMemWriteData   = cpu.io.memory_bundle.write_data
+    val cpuMemWriteEnable = cpu.io.memory_bundle.write_enable
+    val cpuMemWriteStrobe = cpu.io.memory_bundle.write_strobe
+    val cpuMemReadData    = Wire(UInt(Parameters.DataWidth))
+    cpu.io.memory_bundle.read_data := cpuMemReadData
+
+    val memAddress     = Wire(UInt(Parameters.AddrWidth))
+    val memWriteData   = Wire(UInt(Parameters.DataWidth))
+    val memWriteEnable = Wire(Bool())
+    val memWriteStrobe = Wire(Vec(Parameters.WordSize, Bool()))
+    mem.io.bundle.address      := memAddress
+    mem.io.bundle.write_data   := memWriteData
+    mem.io.bundle.write_enable := memWriteEnable
+    mem.io.bundle.write_strobe := memWriteStrobe
+
+    val fullAddress = Cat(
+      cpu.io.device_select,
+      cpuMemAddress(Parameters.AddrBits - Parameters.SlaveDeviceCountBits - 1, 0)
+    )
+
+    // Detect MMIO address ranges (Timer: 0x8xxxxxxx, UART: 0x4xxxxxxx)
+    val addrHighNibble = fullAddress(31, 28)
+    val isTimer        = addrHighNibble === "h8".U
+    val isUart         = addrHighNibble === "h4".U
+    val isMMIO         = isTimer || isUart
+
     when(!rom_loader.io.load_finished) {
-      rom_loader.io.bundle <> mem.io.bundle
-      cpu.io.memory_bundle.read_data := 0.U
+      memAddress                     := rom_loader.io.bundle.address
+      memWriteData                   := rom_loader.io.bundle.write_data
+      memWriteEnable                 := rom_loader.io.bundle.write_enable
+      memWriteStrobe                 := rom_loader.io.bundle.write_strobe
+      rom_loader.io.bundle.read_data := mem.io.bundle.read_data
+      cpuMemReadData                 := 0.U
     }.otherwise {
       rom_loader.io.bundle.read_data := 0.U
-      cpu.io.memory_bundle <> mem.io.bundle
+      memAddress                     := fullAddress
+      memWriteData                   := cpuMemWriteData
+      memWriteEnable                 := cpuMemWriteEnable && !isMMIO
+      memWriteStrobe                 := cpuMemWriteStrobe
+      cpuMemReadData                 := mem.io.bundle.read_data
     }
 
     cpu.io.debug_read_address     := io.regs_debug_read_address

@@ -48,7 +48,6 @@ class UartHarness(exeFilename: String) extends Module {
   withClock(CPU_tick.asClock) {
     val cpu = Module(new CPU)
     cpu.io.interrupt_flag := io.interrupt_flag
-    cpu.io.vga_pixclk     := clock // VGA pixel clock (tied to main clock for testing)
 
     cpu.io.instruction_valid   := rom_loader.io.load_finished
     mem.io.instruction_address := cpu.io.instruction_address
@@ -172,7 +171,7 @@ class UartMMIOTest extends AnyFlatSpec with ChiselScalatestTester {
       // Check all tests passed: TX + Multi-byte RX + Binary RX + Timeout RX
       c.io.mem_debug_read_address.poke(0x104.U)
       c.clock.step()
-      c.io.mem_debug_read_data.expect(0xF.U)  // 0b1111 = all 4 tests passed
+      c.io.mem_debug_read_data.expect(0xf.U) // 0b1111 = all 4 tests passed
     }
   }
 }
