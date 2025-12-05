@@ -1,0 +1,177 @@
+
+csrc/irqtrap.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00001000 <_start>:
+    1000:	00001197          	auipc	gp,0x1
+    1004:	a3018193          	addi	gp,gp,-1488 # 1a30 <__global_pointer$>
+    1008:	00400137          	lui	sp,0x400
+    100c:	00000297          	auipc	t0,0x0
+    1010:	22428293          	addi	t0,t0,548 # 1230 <__sdata_start>
+    1014:	00000317          	auipc	t1,0x0
+    1018:	21c30313          	addi	t1,t1,540 # 1230 <__sdata_start>
+
+0000101c <sbss_clear_loop>:
+    101c:	0062f863          	bgeu	t0,t1,102c <sbss_clear_done>
+    1020:	0002a023          	sw	zero,0(t0)
+    1024:	00428293          	addi	t0,t0,4
+    1028:	ff5ff06f          	j	101c <sbss_clear_loop>
+
+0000102c <sbss_clear_done>:
+    102c:	000ff297          	auipc	t0,0xff
+    1030:	fd428293          	addi	t0,t0,-44 # 100000 <__bss_end>
+    1034:	000ff317          	auipc	t1,0xff
+    1038:	fcc30313          	addi	t1,t1,-52 # 100000 <__bss_end>
+
+0000103c <bss_clear_loop>:
+    103c:	0062f863          	bgeu	t0,t1,104c <bss_clear_done>
+    1040:	0002a023          	sw	zero,0(t0)
+    1044:	00428293          	addi	t0,t0,4
+    1048:	ff5ff06f          	j	103c <bss_clear_loop>
+
+0000104c <bss_clear_done>:
+    104c:	1b8000ef          	jal	1204 <main>
+
+00001050 <loop>:
+    1050:	0000006f          	j	1050 <loop>
+
+00001054 <enable_interrupt>:
+    1054:	00000297          	auipc	t0,0x0
+    1058:	04028293          	addi	t0,t0,64 # 1094 <__trap_entry>
+    105c:	30529373          	csrrw	t1,mtvec,t0
+    1060:	000022b7          	lui	t0,0x2
+    1064:	88828293          	addi	t0,t0,-1912 # 1888 <__sdata_start+0x658>
+    1068:	30029373          	csrrw	t1,mstatus,t0
+    106c:	00008067          	ret
+
+00001070 <enable_paging>:
+    1070:	800002b7          	lui	t0,0x80000
+    1074:	00528293          	addi	t0,t0,5 # 80000005 <STACK_LIMIT+0x7fe00005>
+    1078:	18029073          	csrw	satp,t0
+    107c:	00008067          	ret
+
+00001080 <get_mtval>:
+    1080:	34302573          	csrr	a0,mtval
+    1084:	00008067          	ret
+
+00001088 <get_epc>:
+    1088:	34102573          	csrr	a0,mepc
+    108c:	00008067          	ret
+
+00001090 <tran_handler>:
+    1090:	00008067          	ret
+
+00001094 <__trap_entry>:
+    1094:	34011073          	csrw	mscratch,sp
+    1098:	f8010113          	addi	sp,sp,-128 # 3fff80 <STACK_LIMIT+0x1fff80>
+    109c:	002002b7          	lui	t0,0x200
+    10a0:	10516463          	bltu	sp,t0,11a8 <__stack_overflow_trap>
+    10a4:	00112223          	sw	ra,4(sp)
+    10a8:	00312623          	sw	gp,12(sp)
+    10ac:	00412823          	sw	tp,16(sp)
+    10b0:	00512a23          	sw	t0,20(sp)
+    10b4:	00612c23          	sw	t1,24(sp)
+    10b8:	00712e23          	sw	t2,28(sp)
+    10bc:	02812023          	sw	s0,32(sp)
+    10c0:	02912223          	sw	s1,36(sp)
+    10c4:	02a12423          	sw	a0,40(sp)
+    10c8:	02b12623          	sw	a1,44(sp)
+    10cc:	02c12823          	sw	a2,48(sp)
+    10d0:	02d12a23          	sw	a3,52(sp)
+    10d4:	02e12c23          	sw	a4,56(sp)
+    10d8:	02f12e23          	sw	a5,60(sp)
+    10dc:	05012023          	sw	a6,64(sp)
+    10e0:	05112223          	sw	a7,68(sp)
+    10e4:	05212423          	sw	s2,72(sp)
+    10e8:	05312623          	sw	s3,76(sp)
+    10ec:	05412823          	sw	s4,80(sp)
+    10f0:	05512a23          	sw	s5,84(sp)
+    10f4:	05612c23          	sw	s6,88(sp)
+    10f8:	05712e23          	sw	s7,92(sp)
+    10fc:	07812023          	sw	s8,96(sp)
+    1100:	07912223          	sw	s9,100(sp)
+    1104:	07a12423          	sw	s10,104(sp)
+    1108:	07b12623          	sw	s11,108(sp)
+    110c:	07c12823          	sw	t3,112(sp)
+    1110:	07d12a23          	sw	t4,116(sp)
+    1114:	07e12c23          	sw	t5,120(sp)
+    1118:	07f12e23          	sw	t6,124(sp)
+    111c:	34102573          	csrr	a0,mepc
+    1120:	342025f3          	csrr	a1,mcause
+    1124:	0a4000ef          	jal	11c8 <trap_handler>
+    1128:	00412083          	lw	ra,4(sp)
+    112c:	00c12183          	lw	gp,12(sp)
+    1130:	01012203          	lw	tp,16(sp)
+    1134:	01412283          	lw	t0,20(sp)
+    1138:	01812303          	lw	t1,24(sp)
+    113c:	01c12383          	lw	t2,28(sp)
+    1140:	02012403          	lw	s0,32(sp)
+    1144:	02412483          	lw	s1,36(sp)
+    1148:	02812503          	lw	a0,40(sp)
+    114c:	02c12583          	lw	a1,44(sp)
+    1150:	03012603          	lw	a2,48(sp)
+    1154:	03412683          	lw	a3,52(sp)
+    1158:	03812703          	lw	a4,56(sp)
+    115c:	03c12783          	lw	a5,60(sp)
+    1160:	04012803          	lw	a6,64(sp)
+    1164:	04412883          	lw	a7,68(sp)
+    1168:	04812903          	lw	s2,72(sp)
+    116c:	04c12983          	lw	s3,76(sp)
+    1170:	05012a03          	lw	s4,80(sp)
+    1174:	05412a83          	lw	s5,84(sp)
+    1178:	05812b03          	lw	s6,88(sp)
+    117c:	05c12b83          	lw	s7,92(sp)
+    1180:	06012c03          	lw	s8,96(sp)
+    1184:	06412c83          	lw	s9,100(sp)
+    1188:	06812d03          	lw	s10,104(sp)
+    118c:	06c12d83          	lw	s11,108(sp)
+    1190:	07012e03          	lw	t3,112(sp)
+    1194:	07412e83          	lw	t4,116(sp)
+    1198:	07812f03          	lw	t5,120(sp)
+    119c:	07c12f83          	lw	t6,124(sp)
+    11a0:	34002173          	csrr	sp,mscratch
+    11a4:	30200073          	mret
+
+000011a8 <__stack_overflow_trap>:
+    11a8:	34002173          	csrr	sp,mscratch
+    11ac:	dead62b7          	lui	t0,0xdead6
+    11b0:	acf28293          	addi	t0,t0,-1329 # dead5acf <STACK_LIMIT+0xde8d5acf>
+    11b4:	00200337          	lui	t1,0x200
+    11b8:	00532023          	sw	t0,0(t1) # 200000 <STACK_LIMIT>
+    11bc:	fff00293          	li	t0,-1
+    11c0:	0002a023          	sw	zero,0(t0)
+
+000011c4 <__stack_overflow_halt>:
+    11c4:	0000006f          	j	11c4 <__stack_overflow_halt>
+
+000011c8 <trap_handler>:
+    11c8:	fe010113          	addi	sp,sp,-32
+    11cc:	00112e23          	sw	ra,28(sp)
+    11d0:	00812c23          	sw	s0,24(sp)
+    11d4:	02010413          	addi	s0,sp,32
+    11d8:	fea42623          	sw	a0,-20(s0)
+    11dc:	feb42423          	sw	a1,-24(s0)
+    11e0:	00400793          	li	a5,4
+    11e4:	00002737          	lui	a4,0x2
+    11e8:	02270713          	addi	a4,a4,34 # 2022 <__global_pointer$+0x5f2>
+    11ec:	00e7a023          	sw	a4,0(a5)
+    11f0:	00000013          	nop
+    11f4:	01c12083          	lw	ra,28(sp)
+    11f8:	01812403          	lw	s0,24(sp)
+    11fc:	02010113          	addi	sp,sp,32
+    1200:	00008067          	ret
+
+00001204 <main>:
+    1204:	ff010113          	addi	sp,sp,-16
+    1208:	00112623          	sw	ra,12(sp)
+    120c:	00812423          	sw	s0,8(sp)
+    1210:	01010413          	addi	s0,sp,16
+    1214:	00400793          	li	a5,4
+    1218:	deadc737          	lui	a4,0xdeadc
+    121c:	eef70713          	addi	a4,a4,-273 # deadbeef <STACK_LIMIT+0xde8dbeef>
+    1220:	00e7a023          	sw	a4,0(a5)
+    1224:	e31ff0ef          	jal	1054 <enable_interrupt>
+    1228:	00000013          	nop
+    122c:	ffdff06f          	j	1228 <main+0x24>
