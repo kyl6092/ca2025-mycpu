@@ -175,7 +175,7 @@ class CSR extends Module {
     // CPU CSR instruction write
     // TODO: Update corresponding CSR based on write address
     when(io.reg_write_address_id === CSRRegister.MSTATUS) {
-      mstatus := reg_write_data_ex // ?!
+      mstatus := io.reg_write_data_ex // ?!
     }.elsewhen(io.reg_write_address_id === CSRRegister.MEPC) {
       mepc := io.reg_write_data_ex
     }.elsewhen(io.reg_write_address_id === CSRRegister.MCAUSE) {
