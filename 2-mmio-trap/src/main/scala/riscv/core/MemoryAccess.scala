@@ -73,9 +73,9 @@ class MemoryAccess extends Module {
         // Hint: Replicate sign bit, then concatenate with byte
         InstructionsTypeL.lb -> MuxLookup(mem_address_index, Cat(Fill(24, data(31)), data(31, 24)))(
           Seq(
-            0.U -> Cat(Fill(Parameters.DataBits - 8, data(7)), data(7,0)),
-            1.U -> Cat(Fill(Parameters.DataBits - 8, data(15)), data(15,8)),
-            2.U -> Cat(Fill(Parameters.DataBits - 8, data(23)), data(23,16))
+            0.U -> Cat(Fill(Parameters.DataBits - 8, byte(7)), byte),
+            1.U -> Cat(Fill(Parameters.DataBits - 8, byte(7)), byte),
+            2.U -> Cat(Fill(Parameters.DataBits - 8, byte(7)), byte)
           )
         ),
 
@@ -83,9 +83,9 @@ class MemoryAccess extends Module {
         // Hint: Fill upper bits with zero, then concatenate with byte
         InstructionsTypeL.lbu -> MuxLookup(mem_address_index, Cat(Fill(24, 0.U), data(31, 24)))(
           Seq(
-            0.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), data(7, 0)),
-            1.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), data(15, 8)),
-            2.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), data(23, 16))
+            0.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), byte),
+            1.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), byte),
+            2.U -> Cat(Fill(Parameters.DataBits - 8, 0.U), byte)
           )
         ),
 
@@ -93,16 +93,16 @@ class MemoryAccess extends Module {
         // Hint: Replicate sign bit, then concatenate with halfword
         InstructionsTypeL.lh -> Mux(
           mem_address_index === 0.U,
-          Cat(Fill(Parameters.DataBits - 16, data(15)), data(15,0)),
-          Cat(Fill(Parameters.DataBits - 16, data(31)), data(31,16))
+          Cat(Fill(Parameters.DataBits - 16, half(15)), half),
+          Cat(Fill(Parameters.DataBits - 16, half(15)), half)
         ),
 
         // TODO: Complete LHU (zero-extend halfword)
         // Hint: Fill upper bits with zero, then concatenate with halfword
         InstructionsTypeL.lhu -> Mux(
           mem_address_index === 0.U,
-          Cat(Fill(Parameters.DataBits - 16, 0.U), data(15,0)),
-          Cat(Fill(Parameters.DataBits - 16, 0.U), data(31,16))
+          Cat(Fill(Parameters.DataBits - 16, 0.U), half),
+          Cat(Fill(Parameters.DataBits - 16, 0.U), half)
         ),
 
         // LW: Load full word, no extension needed (completed example)

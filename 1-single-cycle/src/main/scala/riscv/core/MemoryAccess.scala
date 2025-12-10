@@ -154,7 +154,7 @@ class MemoryAccess extends Module {
           // TODO: Enable strobes for upper two bytes, apply appropriate shift
           writeStrobes(3) := true.B
           writeStrobes(2) := true.B
-          writeData := data(31,16) << 16
+          writeData := data(15,0) << 16
         }
       }
       is(InstructionsTypeS.sw) {
